@@ -1,3 +1,6 @@
+
+import java.util.HashSet;
+
 public class Q1Test {
      public static void main(String[] args) {
 
@@ -120,12 +123,66 @@ public class Q1Test {
                     inorderElements = t3;
                     break;
           }
+          String[] preorderElements;
+          switch(preorder) {
+               default:
+               case 0:
+                    preorderElements = t1;
+                    break;
+               case 1:
+                    preorderElements = t2;
+                    break;
+               case 2:
+                    preorderElements = t3;
+                    break;
+          }
+          String[] postorderElements;
+          switch(postorder) {
+               default:
+               case 0:
+                    postorderElements = t1;
+                    break;
+               case 1:
+                    postorderElements = t2;
+                    break;
+               case 2:
+                    postorderElements = t3;
+                    break;
+          }
+
+          // Use a left subtree to check the preorder and postorder later
+          HashSet<String> leftSubtree = new HashSet<>();
+          boolean inLeftSubtree = true;
 
           // Check that inorder traversal is in ascending order
+          // At the same time, construct left subtree
           for (int i = 0; i < length - 1; i++) {
                // System.out.println("[DEBUG] Inorder: " + inorderElements[i]);
                if (inorderElements[i].length() > inorderElements[i + 1].length() ||
                     Integer.parseInt(inorderElements[i]) > Integer.parseInt(inorderElements[i + 1])) {
+                    return "Invalid traversals";
+               }
+
+               if (inorderElements[i].equals(root)) inLeftSubtree = false;
+
+               if (inLeftSubtree) {
+                    // System.out.println("[DEBUG] Left Subtree: " + inorderElements[i]);
+                    leftSubtree.add(inorderElements[i]);
+               }
+          }
+
+          // Check that the preoder and postorder subtrees are valid
+          // Preorder
+          for (int i = 1; i < leftSubtree.size() + 1; i++) {
+               // System.out.println("[DEBUG] Preorder Checking: " + preorderElements[i]);
+               if (!leftSubtree.contains(preorderElements[i])) {
+                    return "Invalid traversals";
+               }
+          }
+          // Postorder
+          for (int i = 0; i < leftSubtree.size(); i++) {
+               // System.out.println("[DEBUG] Postorder Checking: " + postorderElements[i]);
+               if (!leftSubtree.contains(postorderElements[i])) {
                     return "Invalid traversals";
                }
           }
