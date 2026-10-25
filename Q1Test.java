@@ -64,6 +64,58 @@ public class Q1Test {
 
       // write your codes here
      public static String verify(String traversal1, String traversal2, String traversal3){
-          return "";
+
+          // Check if strings are of different lengths, which would be invalid
+          if (!(traversal1.length() == traversal2.length() && traversal2.length() == traversal3.length())) {
+               return "Invalid traversals";
+          }
+
+          // If valid, split the strings and get the common length
+          String[] t1 = traversal1.split("-");
+          String[] t2 = traversal2.split("-");
+          String[] t3 = traversal3.split("-");
+          int length = t1.length;
+          // System.out.println("[DEBUG] Length: " + length);
+
+          // Get the root node, which will also determine which string is which traversal
+          // Preorder: first element is the root node; Postorder: last element is root node
+          // So if there isn't a common root node amongst the 3 strings, they are invalid
+          String root = "";
+          int preorder = -1;
+          int inorder = -1;
+          int postorder = -1;
+          String[] firstElements = new String[3];
+          String[] lastElements = new String[3];
+          firstElements[0] = t1[0];
+          firstElements[1] = t2[0];
+          firstElements[2] = t3[0];
+          lastElements[0] = t1[length - 1];
+          lastElements[1] = t2[length - 1];
+          lastElements[2] = t3[length - 1];
+          for (int f = 0; f < 3; f++) {
+               for (int l = 0; l < 3; l++) {
+                    if (f == l) continue; // Don't check the same string
+
+                    // System.out.printf("[DEBUG] f[%d]: %s; l[%d]: %s\n", f, firstElements[f], l, lastElements[l]);
+                    if (firstElements[f].equals(lastElements[l])) {
+                         if (!root.equals("") && length > 2) { // Not possible for more than one pair of matching first/last elements
+                              return "Invalid traversals";
+                         }
+                         root = firstElements[f];
+                         preorder = f;
+                         postorder = l;
+                         inorder = 3 - f - l;
+                    }
+               }
+          }
+
+          String[] strToSet = {"{t1}", "{t2}", "{t3}"};
+
+          String result = "Traversal 1 - {t1}, Traversal 2 - {t2}, Traversal 3 - {t3}";
+          result = result.replace(strToSet[preorder], "Preorder");
+          result = result.replace(strToSet[inorder], "Inorder");
+          result = result.replace(strToSet[postorder], "Postorder");
+          
+          return result;
      }
 }
