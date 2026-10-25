@@ -1,4 +1,5 @@
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class Q1Test {
@@ -150,41 +151,9 @@ public class Q1Test {
                     break;
           }
 
-          // Use a left subtree to check the preorder and postorder later
-          HashSet<String> leftSubtree = new HashSet<>();
-          boolean inLeftSubtree = true;
-
-          // Check that inorder traversal is in ascending order
-          // At the same time, construct left subtree
-          for (int i = 0; i < length - 1; i++) {
-               // System.out.println("[DEBUG] Inorder: " + inorderElements[i]);
-               if (inorderElements[i].length() > inorderElements[i + 1].length() ||
-                    Integer.parseInt(inorderElements[i]) > Integer.parseInt(inorderElements[i + 1])) {
-                    return "Invalid traversals";
-               }
-
-               if (inorderElements[i].equals(root)) inLeftSubtree = false;
-
-               if (inLeftSubtree) {
-                    // System.out.println("[DEBUG] Left Subtree: " + inorderElements[i]);
-                    leftSubtree.add(inorderElements[i]);
-               }
-          }
-
-          // Check that the preoder and postorder subtrees are valid
-          // Preorder
-          for (int i = 1; i < leftSubtree.size() + 1; i++) {
-               // System.out.println("[DEBUG] Preorder Checking: " + preorderElements[i]);
-               if (!leftSubtree.contains(preorderElements[i])) {
-                    return "Invalid traversals";
-               }
-          }
-          // Postorder
-          for (int i = 0; i < leftSubtree.size(); i++) {
-               // System.out.println("[DEBUG] Postorder Checking: " + postorderElements[i]);
-               if (!leftSubtree.contains(postorderElements[i])) {
-                    return "Invalid traversals";
-               }
+          // Recursively check the subtrees
+          if (!validSubtrees(preorderElements, inorderElements, postorderElements, root)) {
+               return "Invalid traversals";
           }
 
           // Format and return the result string
@@ -195,5 +164,97 @@ public class Q1Test {
           result = result.replace(strToSet[postorder], "Postorder");
           
           return result;
+     }
+
+     public static boolean validSubtrees(String[] preorder, String[] inorder, String[] postorder, String root) {
+          int n = preorder.length;
+
+          // All three traversals must have the same number of nodes
+          if (inorder.length != n || postorder.length != n) {
+               return false;
+          }
+
+          // Empty subtrees are valid
+          if (n == 0) return true;
+
+          // A single-node subtree must contain the same node
+          if (n == 1) {
+               return preorder[0].equals(inorder[0]) && inorder[0].equals(postorder[0]) && inorder[0].equals(root);
+          }
+
+          // Find the root's position in inorder
+          // If it cannot be found, invalid
+          int rootIndex = -1;
+          for (int i = 0; i < n; i++) {
+               if (inorder[i].equals(root)) {
+                    rootIndex = i;
+                    break;
+               }
+          }
+          if (rootIndex == -1) return false;
+
+          // Check that inorder elements are in increasing order (which must be true for BST)
+          for (int i = 0; i < n - 1; i++) {
+               if (Integer.parseInt(inorder[i]) >= Integer.parseInt(inorder[i + 1])) {
+                    return false;
+               }
+          }
+
+          int leftSubtreeSize = rootIndex;
+
+          // Collect the nodes belonging to the left subtree
+          HashSet<String> leftSubtree = new HashSet<>();
+
+          for (int i = 0; i < rootIndex; i++) {
+               leftSubtree.add(inorder[i]);
+          }
+
+          // The root must be first in preorder and last in postorder
+          if (!preorder[0].equals(root)
+                    || !postorder[n - 1].equals(root)) {
+               return false;
+          }
+
+          // Check that preorder's left-subtree segment contains
+          // exactly the nodes belonging to the left subtree
+          for (int i = 1; i <= leftSubtreeSize; i++) {
+               if (!leftSubtree.contains(preorder[i])) {
+                    return false;
+               }
+          }
+
+          // Check that postorder's left-subtree segment contains
+          // exactly the nodes belonging to the left subtree
+          for (int i = 0; i < leftSubtreeSize; i++) {
+               if (!leftSubtree.contains(postorder[i])) {
+                    return false;
+               }
+          }
+
+          // Determine the sizes of both subtrees
+          int rightSubtreeSize = n - leftSubtreeSize - 1;
+
+          // Recursively validate the left subtree
+          boolean leftValid = validSubtrees(
+                    Arrays.copyOfRange(preorder, 1, leftSubtreeSize + 1),
+                    Arrays.copyOfRange(inorder, 0, rootIndex),
+                    Arrays.copyOfRange(postorder, 0, leftSubtreeSize),
+                    leftSubtreeSize > 0 ? preorder[1] : ""
+          );
+
+          if (!leftValid) {
+               return false;
+          }
+
+          // Recursively validate the right subtree
+          boolean rightValid = validSubtrees(
+                    Arrays.copyOfRange(preorder, leftSubtreeSize + 1, n),
+                    Arrays.copyOfRange(inorder, rootIndex + 1, n),
+                    Arrays.copyOfRange(postorder, leftSubtreeSize, n - 1),
+                    rightSubtreeSize > 0
+                              ? preorder[leftSubtreeSize + 1] : ""
+          );
+
+          return rightValid;
      }
 }
