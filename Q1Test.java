@@ -82,7 +82,6 @@ public class Q1Test {
           // So if there isn't a common root node amongst the 3 strings, they are invalid
           String root = "";
           int preorder = -1;
-          int inorder = -1;
           int postorder = -1;
           String[] firstElements = new String[3];
           String[] lastElements = new String[3];
@@ -104,14 +103,36 @@ public class Q1Test {
                          root = firstElements[f];
                          preorder = f;
                          postorder = l;
-                         inorder = 3 - f - l;
                     }
                }
           }
+          int inorder = 3 - preorder - postorder;
+          String[] inorderElements;
+          switch(inorder) {
+               default:
+               case 0:
+                    inorderElements = t1;
+                    break;
+               case 1:
+                    inorderElements = t2;
+                    break;
+               case 2:
+                    inorderElements = t3;
+                    break;
+          }
 
-          String[] strToSet = {"{t1}", "{t2}", "{t3}"};
+          // Check that inorder traversal is in ascending order
+          for (int i = 0; i < length - 1; i++) {
+               // System.out.println("[DEBUG] Inorder: " + inorderElements[i]);
+               if (inorderElements[i].length() > inorderElements[i + 1].length() ||
+                    Integer.parseInt(inorderElements[i]) > Integer.parseInt(inorderElements[i + 1])) {
+                    return "Invalid traversals";
+               }
+          }
 
-          String result = "Traversal 1 - {t1}, Traversal 2 - {t2}, Traversal 3 - {t3}";
+          // Format and return the result string
+          String[] strToSet = {"t1", "t2", "t3"};
+          String result = "Traversal 1 - t1, Traversal 2 - t2, Traversal 3 - t3";
           result = result.replace(strToSet[preorder], "Preorder");
           result = result.replace(strToSet[inorder], "Inorder");
           result = result.replace(strToSet[postorder], "Postorder");
